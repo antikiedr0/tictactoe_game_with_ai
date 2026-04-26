@@ -32,7 +32,7 @@ function App() {
       nextBoard[idx] = player[turn % 2];
 
       if (checkIfConcluded(nextBoard)) {
-        endGame(nextBoard[idx]);
+        setGameOver(true);
       }
 
       return nextBoard;
@@ -42,25 +42,21 @@ function App() {
   }
 
   function checkIfConcluded(boardToCheck: string[]): boolean {
-    if (!boardToCheck.includes("")) {
-      setWinner("");
-      return true;
-    }
     for (const arr of winStates) {
       if (
         boardToCheck[arr[0]] !== "" &&
         boardToCheck[arr[0]] === boardToCheck[arr[1]] &&
         boardToCheck[arr[1]] === boardToCheck[arr[2]]
       ) {
+        setWinner(boardToCheck[arr[0]]);
         return true;
       }
     }
+    if (!boardToCheck.includes("")) {
+      setWinner("");
+      return true;
+    }
     return false;
-  }
-
-  function endGame(currentWinner: string): void {
-    setGameOver(true);
-    setWinner(currentWinner);
   }
 
   function onClickResetBoardButton(): void {
