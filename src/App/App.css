@@ -36,14 +36,15 @@
 }
 
 .game-button {
-  font-size: 600%;
+  font-size: 700%;
   color: inherit;
   background-color: #16171d;
   border-color: #16171d;
   border-width: 5px;
   border-style: solid;
-  border-radius: 1rem;
-  font-family: serif;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  font-family: 'Courier New', Courier, monospace
 }
 .game-button:enabled{
   cursor: pointer;

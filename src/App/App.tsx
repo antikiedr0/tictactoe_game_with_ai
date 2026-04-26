@@ -42,6 +42,10 @@ function App() {
   }
 
   function checkIfConcluded(boardToCheck: string[]): boolean {
+    if (!boardToCheck.includes("")) {
+      setWinner("");
+      return true;
+    }
     for (const arr of winStates) {
       if (
         boardToCheck[arr[0]] !== "" &&
