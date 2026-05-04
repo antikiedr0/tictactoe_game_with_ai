@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import './App.css'
+import {minimax} from "./minimax"
+
 
 function App() {
 
@@ -12,7 +14,8 @@ function App() {
   const [O_Wins, setOWins] = useState(0);
   const [draws, setDraws] = useState(0);
 
-  let results = (winner:string) =>{55
+  
+  let results = (winner:string) =>{
     if (winner == "X"){
       setResult("Winner is X player")
       setBoard(arr)
@@ -91,6 +94,33 @@ function App() {
     return win;
     
   }
+  const handleBestMove = () => {
+  // Jeśli gra się już skończyła, nie rób nic
+  if (check_the_winner() !== "" || check_result() === 1) return;
+
+  let bestScore = -Infinity;
+  let move = -1;
+  const currentMark = turn; // Sprawdzamy czyj jest teraz ruch (X czy O)
+  const opponentMark = turn === "X" ? "O" : "X";
+
+  // Przeszukujemy planszę, żeby znaleźć najlepsze pole
+  for (let i = 0; i < 9; i++) {
+    if (board[i] === null) {
+      const tempBoard = [...board];
+      tempBoard[i] = currentMark;
+      const score = minimax(tempBoard, false, currentMark, opponentMark);
+      if (score > bestScore) {
+        bestScore = score;
+        move = i;
+      }
+    }
+  }
+
+  // Wykonujemy ten ruch korzystając z Twojej istniejącej funkcji make_move
+  if (move !== -1) {
+    make_move(move);
+  }
+};
 
   const make_move = (index) => {
     
@@ -136,7 +166,14 @@ function App() {
         <h1>Move for {turn}</h1>
 
       </p>
-      
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '20px' }}>
+      {/* Przycisk AI po lewej */}
+        <button 
+          onClick={handleBestMove}
+        >
+        Make a best move
+      </button>
+      </div>
       
       <br></br>
       <table>
@@ -174,5 +211,7 @@ function App() {
 
   
 }
+
+
 
 export default App

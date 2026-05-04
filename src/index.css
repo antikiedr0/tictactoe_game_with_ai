@@ -61,7 +61,16 @@
   flex-direction: column;
   box-sizing: border-box;
 }
-
+button{
+  padding: 10px 10px;
+  background-color: #4CAF50; 
+  color: white;
+  border: none, 
+  borderRadius: 5px;
+  width: 300px;
+  height: 150px;
+  font-size: x-large;
+}
 body {
   margin: 0;
 }
