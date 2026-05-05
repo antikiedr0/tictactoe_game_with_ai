@@ -1,217 +1,215 @@
-import { useState } from 'react'
-import './App.css'
-import {minimax} from "./minimax"
+import { useState } from "react";
+import "./App.css";
+import { minimax } from "./minimax";
 
+const initialBoard: (string | null)[] = Array(9).fill(null);
 
 function App() {
-
-  let arr = Array(9).fill(null);
-  const [turn, setTurn] = useState("X");
-  const [board, setBoard] = useState(arr);
-  const [result, setResult] = useState("")
-
+  const [result, setResult] = useState("");
   const [X_Wins, setXWins] = useState(0);
   const [O_Wins, setOWins] = useState(0);
   const [draws, setDraws] = useState(0);
+  const [board, setBoard] = useState<(string | null)[]>([...initialBoard]);
+  const [turn, setTurn] = useState("X");
+  const [gameOver, setGameOver] = useState(false);
+  const [winner, setWinner] = useState("");
 
-  
-  let results = (winner:string) =>{
-    if (winner == "X"){
-      setResult("Winner is X player")
-      setBoard(arr)
-      setXWins(prev => prev + 1)
-    }else if(winner == "O"){
-      setResult("Winner is O player")
-      setBoard(arr)
-      setOWins(prev => prev +1)
-    }else if(winner == "none"){
-      setResult("It's a draw, gg")
-      setBoard(arr);
-      setDraws(prev => prev + 1)
-    }
-  } 
-  let x = () => {
-    if(turn == "X"){
-      setTurn("O");
-    }else{
-      setTurn("X");
-    }
-  } 
-  const check_the_winner = () =>{
-    let win = ""
-    let i = 0
-    // na wzdłórz
-    if(board[i] == "X" && board[i + 1] == "X" && board[i + 2] == "X"){
-      win = "X"
-    }
-    if(board[i+3] == "X" && board[i + 4] == "X" && board[i + 5] == "X"){
-      win = "X"
-    }
-    if(board[i + 6] == "X" && board[i + 7] == "X" && board[i + 8] == "X"){
-      win = "X"
-    }
-    if(board[i] == "O" && board[i + 1] == "O" && board[i + 2] == "O"){
-      win = "O"
-    }
-    if(board[i+3] == "O" && board[i + 4] == "O" && board[i + 5] == "O"){
-      win = "O"
-    }
-    if(board[i + 6] == "O" && board[i + 7] == "O" && board[i + 8] == "O"){
-      win = "O"
-    }
-    // na ukos
-    if(board[i] == "X" && board[i+4] == "X" && board[i+8] == "X"){
-      win = "X";
-    }
-    if(board[i+2] == "X" && board[i+4] == "X" && board[i+6] == "X"){
-      win = "X";
-    }
-    if(board[i] == "O" && board[i+4] == "O" && board[i+8] == "O"){
-      win = "O";
-    }
-    if(board[i+2] == "O" && board[i+4] == "O" && board[i+6] == "O"){
-      win = "O";
-    }
-    // w poprzek 
-    if(board[i] == "X" && board[i + 3] == "X" && board[i + 6] == "X"){
-      win = "X"
-    }
-    if(board[i+1] == "X" && board[i + 4] == "X" && board[i + 7] == "X"){
-      win = "X"
-    }
-    if(board[i + 2] == "X" && board[i + 5] == "X" && board[i + 8] == "X"){
-      win = "X"
-    }
-    if(board[i] == "O" && board[i + 3] == "O" && board[i + 6] == "O"){
-      win = "O"
-    }
-    if(board[i+1] == "O" && board[i + 4] == "O" && board[i + 7] == "O"){
-      win = "O"
-    }
-    if(board[i + 2] == "O" && board[i + 5] == "O" && board[i + 8] == "O"){
-      win = "O"
-    }
-    return win;
-    
-  }
-  const handleBestMove = () => {
-  // Jeśli gra się już skończyła, nie rób nic
-  if (check_the_winner() !== "" || check_result() === 1) return;
+  /**
+   * 0|1|2
+   * 3|4|5    <- this is the board
+   * 6|7|8
+   */
+  const winStates: number[][] = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6],
+  ];
 
-  let bestScore = -Infinity;
-  let move = -1;
-  const currentMark = turn; // Sprawdzamy czyj jest teraz ruch (X czy O)
-  const opponentMark = turn === "X" ? "O" : "X";
+  const resetBoard = () => {
+    setBoard([...initialBoard]);
+    setTurn("X");
+    setGameOver(false);
+    setWinner("");
+    setResult("");
+  };
 
-  // Przeszukujemy planszę, żeby znaleźć najlepsze pole
-  for (let i = 0; i < 9; i++) {
-    if (board[i] === null) {
-      const tempBoard = [...board];
-      tempBoard[i] = currentMark;
-      const score = minimax(tempBoard, false, currentMark, opponentMark);
-      if (score > bestScore) {
-        bestScore = score;
-        move = i;
+  const checkWinner = (boardToCheck: (string | null)[]): string => {
+    for (const [a, b, c] of winStates) {
+      if (
+        boardToCheck[a] !== null &&
+        boardToCheck[a] === boardToCheck[b] &&
+        boardToCheck[b] === boardToCheck[c]
+      ) {
+        return boardToCheck[a]!;
       }
     }
-  }
+    return "";
+  };
 
-  // Wykonujemy ten ruch korzystając z Twojej istniejącej funkcji make_move
-  if (move !== -1) {
-    make_move(move);
-  }
-};
+  const isBoardFull = (boardToCheck: (string | null)[]) => {
+    return boardToCheck.every((cell) => cell !== null);
+  };
 
-  const make_move = (index) => {
-    
-    let end = 0;
-    let win = "";
-    if(board[index]) return;
+  const handleGameEnd = (winnerMark: string) => {
+    if (winnerMark === "X") {
+      setResult("Winner is X player");
+      setXWins((prev) => prev + 1);
+    } else if (winnerMark === "O") {
+      setResult("Winner is O player");
+      setOWins((prev) => prev + 1);
+    } else {
+      setResult("It's a draw, gg");
+      setDraws((prev) => prev + 1);
+    }
 
-    const newBoard = board
-    newBoard[index] = turn;
+    setWinner(winnerMark);
+    setGameOver(true);
+  };
 
-    setBoard(newBoard)
-    setTurn(turn === "X" ? "O" :"X")
-  
-    end = check_result()
-    win = check_the_winner()
-    if(win == "X"){
-      results("X")
+  const make_move = (index: number) => {
+    if (gameOver || board[index] !== null) return;
+
+    const nextBoard = [...board];
+    nextBoard[index] = turn;
+
+    const winnerMark = checkWinner(nextBoard);
+    const boardIsFull = isBoardFull(nextBoard);
+
+    setBoard(nextBoard);
+
+    if (winnerMark) {
+      handleGameEnd(winnerMark);
+      return;
     }
-    if(win == "O"){
-      results("O")
+
+    if (boardIsFull) {
+      handleGameEnd("");
+      return;
     }
-    if(end == 1 && win == ""){
-      results("none")
+
+    setTurn((prevTurn) => (prevTurn === "X" ? "O" : "X"));
+  };
+
+  const handleBestMove = () => {
+    if (gameOver) return;
+
+    let bestScore = -Infinity;
+    let move = -1;
+    const currentMark = turn;
+    const opponentMark = turn === "X" ? "O" : "X";
+
+    for (let i = 0; i < 9; i++) {
+      if (board[i] === null) {
+        const tempBoard = [...board];
+        tempBoard[i] = currentMark;
+        const score = minimax(tempBoard, false, currentMark, opponentMark);
+        if (score > bestScore) {
+          bestScore = score;
+          move = i;
+        }
+      }
     }
-  }
-  const check_result = () => {
-    let full = 0;
-    for(let i = 0; i < 9; i++){
-      if(board[i] != null){
-        full += 1
-    }}
-    if(full < 9){
-      return 0;
+
+    if (move !== -1) {
+      make_move(move);
     }
-    else{
-      return 1;
-    } 
-  }   
-  
+  };
+
   return (
-    <div className="center">
-      <p>
-        <h1>Move for {turn}</h1>
-
-      </p>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '20px' }}>
-      {/* Przycisk AI po lewej */}
-        <button 
-          onClick={handleBestMove}
-        >
-        Make a best move
-      </button>
+    <div className="main-body">
+      {/* Header with title */}
+      <div className="header">
+        <div className="game-name-row">
+          <p
+            className={`game-name-label-nought ${winner === "O" ? "winner-label" : ""}`}
+          >
+            Noughts
+          </p>
+          <p className="game-name-label">and</p>
+          <p
+            className={`game-name-label-cross ${winner === "X" ? "winner-label" : ""}`}
+          >
+            Crosses
+          </p>
+        </div>
       </div>
-      
-      <br></br>
-      <table>
-      <tbody>
-          <tr>
-            <td onClick={() => make_move(0)}>{board[0]}</td>
-            <td onClick={() => make_move(1)}>{board[1]}</td>
-            <td onClick={() => make_move(2)}>{board[2]}</td>
-          </tr>
-          <tr>
-            <td onClick={() => make_move(3)}>{board[3]}</td>
-            <td onClick={() => make_move(4)}>{board[4]}</td>
-            <td onClick={() => make_move(5)}>{board[5]}</td>
-          </tr>
-          <tr>
-            <td onClick={() => make_move(6)}>{board[6]}</td>
-            <td onClick={() => make_move(7)}>{board[7]}</td>
-            <td onClick={() => make_move(8)}>{board[8]}</td>
-          </tr>
-        </tbody>
-      </table>
-      <span>
-        <h2>
-          {result}
-        </h2>
-      </span>
-      <h3>Winners Board:</h3>
-      <ul>
-        <li>X player: {X_Wins}</li>
-        <li>O player: {O_Wins} </li>
-        <li>Draws: {draws} </li>
-      </ul>
-    </div>
-  )
 
-  
+      {/* Main content container */}
+      <div className="content-container">
+        {/* Left side: Game grid and buttons */}
+        <div className="left-section">
+          <div className={`game-grid ${gameOver ? "game-over" : ""}`}>
+            {board.map((cell, idx) => (
+              <button
+                key={idx}
+                disabled={cell !== null || gameOver}
+                className={`game-button ${cell === "X" ? "cell-x" : cell === "O" ? "cell-o" : ""}`}
+                onClick={() => make_move(idx)}
+              >
+                {cell}
+              </button>
+            ))}
+          </div>
+          <div className="button-group">
+            <button
+              className="action-button reset-board-button"
+              onClick={resetBoard}
+            >
+              Reset Board
+            </button>
+            <button
+              className="action-button best-move-button"
+              onClick={handleBestMove}
+              disabled={gameOver}
+            >
+              Make Best Move
+            </button>
+          </div>
+        </div>
+
+        {/* Right side: Scoreboard and turn indicator */}
+        <div className="right-section">
+          <div className="right-panel">
+            <div className="turn-indicator">
+              <h2>Current Turn</h2>
+              <div
+                className={`turn-display ${turn === "X" ? "turn-x" : "turn-o"}`}
+              >
+                {turn}
+              </div>
+            </div>
+
+            <div className="scoreboard">
+              <h2>Scoreboard</h2>
+              <div className="score-item">
+                <span className="score-label">X Wins:</span>
+                <span className="score-value score-x">{X_Wins}</span>
+              </div>
+              <div className="score-item">
+                <span className="score-label">O Wins:</span>
+                <span className="score-value score-o">{O_Wins}</span>
+              </div>
+              <div className="score-item">
+                <span className="score-label">Draws:</span>
+                <span className="score-value">{draws}</span>
+              </div>
+            </div>
+          </div>
+
+          {gameOver && (
+            <div className="game-result">
+              <h3>{result}</h3>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 }
 
-
-
-export default App
+export default App;
