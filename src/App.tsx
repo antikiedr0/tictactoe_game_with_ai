@@ -128,13 +128,13 @@ function App() {
           <p
             className={`game-name-label-nought ${winner === "O" ? "winner-label" : ""}`}
           >
-            Noughts
+            Tic
           </p>
-          <p className="game-name-label">and</p>
+          <p className="game-name-label">Tac</p>
           <p
             className={`game-name-label-cross ${winner === "X" ? "winner-label" : ""}`}
           >
-            Crosses
+            Toe
           </p>
         </div>
       </div>
